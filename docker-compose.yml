@@ -1,0 +1,83 @@
+version: "3"
+services:
+  postgres:
+    image: "postgres:latest"
+    environment:
+      - POSTGRES_DB=Dev
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=localhost
+    volumes:
+      - postgres_database:/var/lib/postgresql/data
+      - ./backend/app/config/database.sql:/docker-entrypoint-initdb.d/database.sql
+  
+  # PGadmin4
+  pgadmin:
+    image: "dpage/pgadmin4:latest"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    depends_on:
+      - postgres
+    ports:
+      - "5050:80"
+  
+  # Nginx Server
+  nginx:
+    depends_on:
+      - api
+      - client
+    restart: always
+    build:
+      dockerfile: Dockerfile
+      context: "./backend/nginx"
+    ports:
+      - "3050:80"
+  
+  # API Backend Server
+  api:
+    build:
+      dockerfile: Dockerfile
+      context: "./backend"
+    volumes:
+      - /app/node_modules
+      - ./backend:/app
+    environment:
+      - PGUSER=postgres
+      - PGHOST=postgres
+      - PGDATABASE=Dev
+      - PGPASSWORD=localhost
+      - PGPORT=5432
+      - WATCHPACK_POLLING=true
+  
+  # Frontend Client Server
+  client:
+    stdin_open: true
+    build:
+      dockerfile: Dockerfile
+      context: "./frontend"
+    environment:
+      - WATCHPACK_POLLING=true
+    volumes:
+      - /app/node_modules
+      - ./frontend:/app
+  
+  # Prometheus Client
+  prometheus:
+    image: "prom/prometheus:latest"
+    volumes:
+      - ./backend/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    depends_on:
+      - api
+      - node-exporter
+      - nginx
+  
+  # Node Exporter
+  node-exporter:
+    image: "prom/node-exporter:latest"
+    ports:
+      - "9100:9100"
+
+volumes:
+  postgres_database: {}

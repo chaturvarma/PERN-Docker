@@ -1,0 +1,44 @@
+{
+  "name": "pern_stack_ui",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "axios": "^1.7.7",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.0",
+    "react-scripts": "^5.0.1"
+  },
+  "scripts": {
+    "start": "concurrently \"npm run start:tailwind\" \"react-scripts start\"",
+    "start:tailwind": "npx tailwindcss -i ./src/css/input.css -o ./src/css/output.css --watch",
+    "build": "cp public/index.html build/index.html && npm run build:tailwind && react-scripts build",
+    "build:tailwind": "npx tailwindcss -i ./src/css/input.css -o ./src/css/output.css",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^8.2.2",
+    "postcss": "^8.4.48",
+    "tailwindcss": "^3.4.14"
+  }
+}
